@@ -369,12 +369,14 @@ size_t MeasurementsWhileFeeding(int dropEveryN, double seconds) {
 }
 
 void MeasuresWithDroppedFrames() {
-    const size_t clean = MeasurementsWhileFeeding(0, 2.0);
-    const size_t drops3 = MeasurementsWhileFeeding(3, 2.0);
-    const size_t drops2 = MeasurementsWhileFeeding(2, 2.0);
-    std::printf("  measurements in 2 s: clean %zu, a frame dropped every 3rd %zu, every 2nd %zu\n", clean, drops3,
+    // 3 s each. The rates depend on the machine (a macOS CI runner measured a clean feed
+    // ~2 times a second), so the bounds are loose; the old Submit measured NOTHING with drops.
+    const size_t clean = MeasurementsWhileFeeding(0, 3.0);
+    const size_t drops3 = MeasurementsWhileFeeding(3, 3.0);
+    const size_t drops2 = MeasurementsWhileFeeding(2, 3.0);
+    std::printf("  measurements in 3 s: clean %zu, a frame dropped every 3rd %zu, every 2nd %zu\n", clean, drops3,
                 drops2);
-    CHECK(clean >= 5, "a clean feed is measured about 4 times a second");
+    CHECK(clean >= 3, "a clean feed is measured repeatedly");
     CHECK(drops3 >= 2, "dropping every 3rd frame still measures (about every 0.5 s)");
     CHECK(drops2 >= 2, "dropping every 2nd frame still measures");
 }
